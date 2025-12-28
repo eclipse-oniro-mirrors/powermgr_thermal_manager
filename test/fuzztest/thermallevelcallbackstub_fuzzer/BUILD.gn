@@ -1,0 +1,76 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/config/features.gni")
+import("//build/test.gni")
+import("../../../thermalmgr.gni")
+
+module_output_path = "thermal_manager/thermal_manager"
+
+##############################fuzztest##########################################
+ohos_fuzztest("ThermalLevelCallbackStubFuzzTest") {
+  module_out_path = module_output_path
+  fuzz_config_file =
+      "${thermal_manager_path}/test/fuzztest/thermallevelcallbackstub_fuzzer"
+
+  include_dirs = [
+    "./",
+    "${thermal_inner_api}/native/include",
+    "${utils_path}/native/include",
+    "../thermal_utils",
+  ]
+
+  configs = [ "${utils_path}:coverage_flags" ]
+
+  cflags = [
+    "-g",
+    "-O0",
+    "-Wno-unused-variable",
+    "-fno-omit-frame-pointer",
+  ]
+  sources = [ "./thermallevelcallbackstub_fuzzer.cpp" ]
+  deps = [
+    "${thermal_inner_api}:thermalsrv_client",
+    "${thermal_manager_path}/services:thermalservice",
+    "${thermal_service_zidl}:thermalmgr_proxy",
+    "${thermal_service_zidl}:thermalmgr_stub",
+    "${utils_path}:thermal_utils",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_runtime:wantagent_innerkits",
+    "c_utils:utils",
+    "drivers_interface_thermal:libthermal_proxy_1.1",
+    "hdf_core:libhdi",
+    "hdf_core:libpub_utils",
+    "hicollie:libhicollie",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "libxml2:libxml2",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+    "time_service:time_client",
+  ]
+
+  defines = []
+  if (has_thermal_airplane_manager_part) {
+    defines += [ "HAS_THERMAL_AIRPLANE_MANAGER_PART" ]
+    external_deps += [ "netmanager_base:net_conn_manager_if" ]
+  }
+}
+
+group("fuzztest") {
+  testonly = true
+  deps = [ ":ThermalLevelCallbackStubFuzzTest" ]
+}
