@@ -574,6 +574,7 @@ int32_t ThermalService::SetScene(const std::string& scene)
         THERMAL_HILOGE(COMP_SVC, "Permission::IsSystem() failed");
         return ERR_FAIL;
     }
+    std::lock_guard<std::mutex> lock(sceneMutex_);
     scene_ = scene;
     return ERR_OK;
 }
