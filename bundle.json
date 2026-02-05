@@ -15,13 +15,17 @@
   "component": {
     "name": "thermal_manager",
     "subsystem": "powermgr",
-    "syscap": ["SystemCapability.PowerManager.ThermalManager"],
+    "syscap": [
+      "SystemCapability.PowerManager.ThermalManager"
+    ],
     "features": [
       "thermal_manager_audio_framework_enable"
     ],
-    "adapted_system_type": ["standard"],
+    "adapted_system_type": [
+      "standard"
+    ],
     "hisysevent_config": [
-        "//base/powermgr/thermal_manager/thermalmgr.yaml"
+      "//base/powermgr/thermal_manager/thermalmgr.yaml"
     ],
     "rom": "1024KB",
     "ram": "2048KB",
@@ -93,14 +97,14 @@
           }
         },
         {
-            "name": "//base/powermgr/thermal_manager/interfaces/inner_api:thermalmgr_listener",
-            "header": {
-              "header_files": [
-                "thermal_mgr_listener.h",
-                "thermal_level_callback_stub.h"
-              ],
-              "header_base": "//base/powermgr/thermal_manager/interfaces/inner_api/native/include"
-            }
+          "name": "//base/powermgr/thermal_manager/interfaces/inner_api:thermalmgr_listener",
+          "header": {
+            "header_files": [
+              "thermal_mgr_listener.h",
+              "thermal_level_callback_stub.h"
+            ],
+            "header_base": "//base/powermgr/thermal_manager/interfaces/inner_api/native/include"
+          }
         },
         {
           "name": "//base/powermgr/thermal_manager/utils/hookmgr:thermal_hookmgr",
@@ -121,14 +125,15 @@
           }
         },
         {
-            "name": "//base/powermgr/thermal_manager/frameworks/ets/taihe/thermal:copy_thermal_manager"
+          "name": "//base/powermgr/thermal_manager/frameworks/ets/taihe/thermal:copy_thermal_manager"
         }
       ],
       "test": [
         "//base/powermgr/thermal_manager/test:unittest",
         "//base/powermgr/thermal_manager/test:fuzztest",
         "//base/powermgr/thermal_manager/test:systemtest",
-        "//base/powermgr/thermal_manager/frameworks/ets/taihe:thermal_manager_taihe_test"
+        "//base/powermgr/thermal_manager/frameworks/ets/taihe:thermal_manager_taihe_test",
+        "//base/powermgr/thermal_manager/test/fuzztest/thermallevelcallbackstub_fuzzer:fuzztest"
       ]
     }
   }
