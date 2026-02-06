@@ -160,8 +160,9 @@ public:
         InitConfigModule();
     }
 
-    static const std::string& GetScene()
+    const std::string& GetScene()
     {
+        std::lock_guard<std::mutex> lock(sceneMutex_);
         return scene_;
     }
 #ifdef HAS_THERMAL_AIRPLANE_MANAGER_PART
@@ -199,6 +200,7 @@ private:
     bool isTempReport_ {true};
     std::mutex mutex_;
     std::mutex interfaceMutex_;
+    std::mutex sceneMutex_;
     std::shared_ptr<ThermalServiceSubscriber> serviceSubscriber_ {nullptr};
     std::shared_ptr<ThermalObserver> observer_ {nullptr};
     std::shared_ptr<ThermalSensorInfo> info_ {nullptr};
