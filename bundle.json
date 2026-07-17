@@ -69,7 +69,8 @@
         "api_metrics",
         "soc_perf",
         "time_service",
-        "window_manager"
+        "window_manager",
+        "taihe_ffi_gen"
       ]
     },
     "build": {
