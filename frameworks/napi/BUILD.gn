@@ -23,6 +23,7 @@ ohos_shared_library("thermal") {
     cfi_cross_dso = true
     debug = false
   }
+  branch_protector_ret = "pac_ret"
   configs = [
     "${utils_path}:utils_config",
     ":thermal_private_config",
