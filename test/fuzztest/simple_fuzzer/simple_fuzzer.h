@@ -18,12 +18,8 @@
 
 #define FUZZ_PROJECT_NAME "simple_fuzzer"
 
+#include <cstddef>
 #include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <climits>
-#include <unistd.h>
-#include <fcntl.h>
 #include <string>
 #include <vector>
 
@@ -41,17 +37,17 @@ namespace PowerMgr {
 
 enum class ThermalFuzzIpcCode : int32_t {
     SUBSCRIBE_THERMAL_TEMP = 0,
-    UN_SUBSCRIBE_THERMAL_TEMP = 1,
-    SUBSCRIBE_THERMAL_LEVEL = 2,
-    UN_SUBSCRIBE_THERMAL_LEVEL = 3,
-    SUBSCRIBE_THERMAL_ACTION = 4,
-    UN_SUBSCRIBE_THERMAL_ACTION = 5,
-    GET_THERMAL_SRV_SENSOR_INFO = 6,
-    GET_THERMAL_LEVEL = 7,
-    GET_THERMAL_INFO = 8,
-    SET_SCENE = 9,
-    UPDATE_THERMAL_STATE = 10,
-    SHELL_DUMP = 11,
+    UN_SUBSCRIBE_THERMAL_TEMP,
+    SUBSCRIBE_THERMAL_LEVEL,
+    UN_SUBSCRIBE_THERMAL_LEVEL,
+    SUBSCRIBE_THERMAL_ACTION,
+    UN_SUBSCRIBE_THERMAL_ACTION,
+    GET_THERMAL_SRV_SENSOR_INFO,
+    GET_THERMAL_LEVEL,
+    GET_THERMAL_INFO,
+    SET_SCENE,
+    UPDATE_THERMAL_STATE,
+    SHELL_DUMP,
     MAX_CODE
 };
 

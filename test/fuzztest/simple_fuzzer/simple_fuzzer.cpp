@@ -23,7 +23,6 @@
 
 #include "message_parcel.h"
 #include "message_option.h"
-#include "securec.h"
 
 using namespace OHOS::PowerMgr;
 using namespace OHOS;
@@ -77,7 +76,7 @@ void SimpleFuzzer::FuzzSubscribeThermalTempCallback(FuzzedDataProvider& provider
         return;
     }
     std::vector<std::string> typeList = GenerateStringVector(provider);
-    sptr<IThermalTempCallback> callback = new SimpleFuzzerTempCallback();
+    sptr<IThermalTempCallback> callback = sptr<SimpleFuzzerTempCallback>::MakeSptr();
     service_->SubscribeThermalTempCallback(typeList, callback);
 }
 
@@ -87,7 +86,7 @@ void SimpleFuzzer::FuzzUnSubscribeThermalTempCallback(FuzzedDataProvider& provid
     if (service_ == nullptr) {
         return;
     }
-    sptr<IThermalTempCallback> callback = new SimpleFuzzerTempCallback();
+    sptr<IThermalTempCallback> callback = sptr<SimpleFuzzerTempCallback>::MakeSptr();
     service_->UnSubscribeThermalTempCallback(callback);
 }
 
@@ -96,7 +95,7 @@ void SimpleFuzzer::FuzzSubscribeThermalLevelCallback(FuzzedDataProvider& provide
     if (service_ == nullptr) {
         return;
     }
-    sptr<IThermalLevelCallback> callback = new SimpleFuzzerLevelCallback();
+    sptr<IThermalLevelCallback> callback = sptr<SimpleFuzzerLevelCallback>::MakeSptr();
     service_->SubscribeThermalLevelCallback(callback);
 }
 
@@ -106,7 +105,7 @@ void SimpleFuzzer::FuzzUnSubscribeThermalLevelCallback(FuzzedDataProvider& provi
     if (service_ == nullptr) {
         return;
     }
-    sptr<IThermalLevelCallback> callback = new SimpleFuzzerLevelCallback();
+    sptr<IThermalLevelCallback> callback = sptr<SimpleFuzzerLevelCallback>::MakeSptr();
     service_->UnSubscribeThermalLevelCallback(callback);
 }
 
@@ -117,7 +116,7 @@ void SimpleFuzzer::FuzzSubscribeThermalActionCallback(FuzzedDataProvider& provid
     }
     std::vector<std::string> actionList = GenerateStringVector(provider);
     std::string desc = GenerateString(provider);
-    sptr<IThermalActionCallback> callback = new SimpleFuzzerActionCallback();
+    sptr<IThermalActionCallback> callback = sptr<SimpleFuzzerActionCallback>::MakeSptr();
     service_->SubscribeThermalActionCallback(actionList, desc, callback);
 }
 
@@ -127,7 +126,7 @@ void SimpleFuzzer::FuzzUnSubscribeThermalActionCallback(FuzzedDataProvider& prov
     if (service_ == nullptr) {
         return;
     }
-    sptr<IThermalActionCallback> callback = new SimpleFuzzerActionCallback();
+    sptr<IThermalActionCallback> callback = sptr<SimpleFuzzerActionCallback>::MakeSptr();
     service_->UnSubscribeThermalActionCallback(callback);
 }
 
