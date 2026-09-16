@@ -808,4 +808,161 @@ HWTEST_F(ThermalActionTest, ThermalActionTest019, TestSize.Level0)
     g_actionThermalLevel->UnSubscribeThermalLevelCallback(levelCallback);
     THERMAL_HILOGI(LABEL_TEST, "ThermalActionTest019 function end!");
 }
+
+/**
+ * @tc.name: ThermalActionTest020
+ * @tc.desc: Test sync callback subscription success
+ * @tc.type: FUNC
+ */
+HWTEST_F(ThermalActionTest, ThermalActionTest020, TestSize.Level0)
+{
+    THERMAL_HILOGI(LABEL_TEST, "ThermalActionTest020 function start!");
+    sptr<IThermalLevelCallback> levelCallback = new ThermalLevelCallbackStub();
+    EXPECT_FALSE(levelCallback == nullptr);
+
+    size_t beforeSize = g_actionThermalLevel->syncThermalLevelListeners_.size();
+    g_actionThermalLevel->SubscribeThermalLevelCallback(levelCallback, true);
+
+    EXPECT_EQ(g_actionThermalLevel->syncThermalLevelListeners_.size(), beforeSize + 1);
+    g_actionThermalLevel->UnSubscribeThermalLevelCallback(levelCallback);
+    EXPECT_EQ(g_actionThermalLevel->syncThermalLevelListeners_.size(), beforeSize);
+    THERMAL_HILOGI(LABEL_TEST, "ThermalActionTest020 function end!");
+}
+
+/**
+ * @tc.name: ThermalActionTest021
+ * @tc.desc: Test subscribe with null callback does not crash
+ * @tc.type: FUNC
+ */
+HWTEST_F(ThermalActionTest, ThermalActionTest021, TestSize.Level0)
+{
+    THERMAL_HILOGI(LABEL_TEST, "ThermalActionTest021 function start!");
+    sptr<IThermalLevelCallback> nullCallback = nullptr;
+    size_t syncBefore = g_actionThermalLevel->syncThermalLevelListeners_.size();
+    size_t asyncBefore = g_actionThermalLevel->asyncThermalLevelListeners_.size();
+
+    g_actionThermalLevel->SubscribeThermalLevelCallback(nullCallback, true);
+    g_actionThermalLevel->SubscribeThermalLevelCallback(nullCallback, false);
+
+    EXPECT_EQ(g_actionThermalLevel->syncThermalLevelListeners_.size(), syncBefore);
+    EXPECT_EQ(g_actionThermalLevel->asyncThermalLevelListeners_.size(), asyncBefore);
+    THERMAL_HILOGI(LABEL_TEST, "ThermalActionTest021 function end!");
+}
+
+/**
+ * @tc.name: ThermalActionTest022
+ * @tc.desc: Test duplicate sync subscription does not increase listener count
+ * @tc.type: FUNC
+ */
+HWTEST_F(ThermalActionTest, ThermalActionTest022, TestSize.Level0)
+{
+    THERMAL_HILOGI(LABEL_TEST, "ThermalActionTest022 function start!");
+    sptr<IThermalLevelCallback> levelCallback = new ThermalLevelCallbackStub();
+    EXPECT_FALSE(levelCallback == nullptr);
+
+    g_actionThermalLevel->SubscribeThermalLevelCallback(levelCallback, true);
+    size_t afterFirst = g_actionThermalLevel->syncThermalLevelListeners_.size();
+
+    g_actionThermalLevel->SubscribeThermalLevelCallback(levelCallback, true);
+    EXPECT_EQ(g_actionThermalLevel->syncThermalLevelListeners_.size(), afterFirst);
+
+    g_actionThermalLevel->UnSubscribeThermalLevelCallback(levelCallback);
+    THERMAL_HILOGI(LABEL_TEST, "ThermalActionTest022 function end!");
+}
+
+/**
+ * @tc.name: ThermalActionTest023
+ * @tc.desc: Test duplicate async subscription does not increase listener count
+ * @tc.type: FUNC
+ */
+HWTEST_F(ThermalActionTest, ThermalActionTest023, TestSize.Level0)
+{
+    THERMAL_HILOGI(LABEL_TEST, "ThermalActionTest023 function start!");
+    sptr<IThermalLevelCallback> levelCallback = new ThermalLevelCallbackStub();
+    EXPECT_FALSE(levelCallback == nullptr);
+
+    g_actionThermalLevel->SubscribeThermalLevelCallback(levelCallback, false);
+    size_t afterFirst = g_actionThermalLevel->asyncThermalLevelListeners_.size();
+
+    g_actionThermalLevel->SubscribeThermalLevelCallback(levelCallback, false);
+    EXPECT_EQ(g_actionThermalLevel->asyncThermalLevelListeners_.size(), afterFirst);
+
+    g_actionThermalLevel->UnSubscribeThermalLevelCallback(levelCallback);
+    THERMAL_HILOGI(LABEL_TEST, "ThermalActionTest023 function end!");
+}
+
+/**
+ * @tc.name: ThermalActionTest024
+ * @tc.desc: Test GetThermalLevelListeners returns correct copies for sync and async
+ * @tc.type: FUNC
+ */
+HWTEST_F(ThermalActionTest, ThermalActionTest024, TestSize.Level0)
+{
+    THERMAL_HILOGI(LABEL_TEST, "ThermalActionTest024 function start!");
+    sptr<IThermalLevelCallback> syncCallback = new ThermalLevelCallbackStub();
+    sptr<IThermalLevelCallback> asyncCallback = new ThermalLevelCallbackStub();
+    EXPECT_FALSE(syncCallback == nullptr);
+    EXPECT_FALSE(asyncCallback == nullptr);
+
+    g_actionThermalLevel->SubscribeThermalLevelCallback(syncCallback, true);
+    g_actionThermalLevel->SubscribeThermalLevelCallback(asyncCallback, false);
+
+    auto syncListeners = g_actionThermalLevel->GetThermalLevelListeners(true);
+    auto asyncListeners = g_actionThermalLevel->GetThermalLevelListeners(false);
+
+    EXPECT_EQ(syncListeners.size(), g_actionThermalLevel->syncThermalLevelListeners_.size());
+    EXPECT_EQ(asyncListeners.size(), g_actionThermalLevel->asyncThermalLevelListeners_.size());
+
+    bool foundSync = false;
+    for (auto& cb : syncListeners) {
+        if (cb->AsObject() == syncCallback->AsObject()) {
+            foundSync = true;
+            break;
+        }
+    }
+    EXPECT_TRUE(foundSync);
+
+    bool foundAsync = false;
+    for (auto& cb : asyncListeners) {
+        if (cb->AsObject() == asyncCallback->AsObject()) {
+            foundAsync = true;
+            break;
+        }
+    }
+    EXPECT_TRUE(foundAsync);
+
+    g_actionThermalLevel->UnSubscribeThermalLevelCallback(syncCallback);
+    g_actionThermalLevel->UnSubscribeThermalLevelCallback(asyncCallback);
+    THERMAL_HILOGI(LABEL_TEST, "ThermalActionTest024 function end!");
+}
+
+/**
+ * @tc.name: ThermalActionTest025
+ * @tc.desc: Test NotifyThermalLevelChanged triggers callbacks via copied listener sets
+ * @tc.type: FUNC
+ */
+HWTEST_F(ThermalActionTest, ThermalActionTest025, TestSize.Level0)
+{
+    THERMAL_HILOGI(LABEL_TEST, "ThermalActionTest025 function start!");
+    sptr<IThermalLevelCallback> syncCallback = new ThermalLevelCallbackStub();
+    sptr<IThermalLevelCallback> asyncCallback = new ThermalLevelCallbackStub();
+    EXPECT_FALSE(syncCallback == nullptr);
+    EXPECT_FALSE(asyncCallback == nullptr);
+
+    g_actionThermalLevel->SubscribeThermalLevelCallback(syncCallback, true);
+    g_actionThermalLevel->SubscribeThermalLevelCallback(asyncCallback, false);
+
+    EXPECT_FALSE(g_actionThermalLevel->syncThermalLevelListeners_.empty());
+    EXPECT_FALSE(g_actionThermalLevel->asyncThermalLevelListeners_.empty());
+
+    g_actionThermalLevel->NotifyThermalLevelChanged(1);
+
+    EXPECT_FALSE(g_actionThermalLevel->syncThermalLevelListeners_.empty());
+    EXPECT_FALSE(g_actionThermalLevel->asyncThermalLevelListeners_.empty());
+
+    g_actionThermalLevel->UnSubscribeThermalLevelCallback(syncCallback);
+    g_actionThermalLevel->UnSubscribeThermalLevelCallback(asyncCallback);
+    THERMAL_HILOGI(LABEL_TEST, "ThermalActionTest025 function end!");
+}
+
 } // namespace

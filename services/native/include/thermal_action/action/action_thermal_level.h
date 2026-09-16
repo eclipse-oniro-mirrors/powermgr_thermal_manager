@@ -67,6 +67,9 @@ private:
     void LevelRequest(int32_t level);
     void NotifyThermalLevelChanged(int32_t level);
     bool PublishLevelChangedEvents(ThermalCommonEventCode code, int32_t level);
+    bool AddThermalLevelListeners(const sptr<IThermalLevelCallback>& callback, bool isSync);
+    auto GetThermalLevelListeners(bool isSync)
+        -> std::set<const sptr<IThermalLevelCallback>, classcomp>;
     std::mutex mutex_;
     sptr<IRemoteObject::DeathRecipient> thermalLevelCBDeathRecipient_;
     std::vector<uint32_t> valueList_;
