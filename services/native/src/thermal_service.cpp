@@ -111,6 +111,7 @@ void ThermalService::OnStart()
         return;
     }
     RegisterBootCompletedCallback();
+    AddSystemAbilityListener(DEVICE_SERVICE_MANAGER_SA_ID);
     ready_ = true;
     THERMAL_HILOGD(COMP_SVC, "OnStart and add system ability success");
 }
@@ -151,8 +152,24 @@ void ThermalService::OnAddSystemAbility(int32_t systemAbilityId, const std::stri
         }
         csc->InitChargeState();
 #endif
+    } else if (systemAbilityId == DEVICE_SERVICE_MANAGER_SA_ID ) {
+        if (isHdiRemove_.load()) {
+            RegisterHdiStatusListener();
+        }
     }
 }
+
+void ThermalService::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    THERMAL_HILOGI(COMP_SVC, "Remove systemAbilityId=%{public}d, deviceId=%{private}s",
+        systemAbilityId, deviceId.c_str());
+    if (systemAbilityId == DEVICE_SERVICE_MANAGER_SA_ID) {
+        hdiServiceMgr_ = nullptr;
+        thermalInterface_ = nullptr;
+        isHdiRemove_.store(true, std::memory_order_relaxed);
+    }
+}
+
 
 #ifdef HAS_THERMAL_AIRPLANE_MANAGER_PART
 bool ThermalService::SubscribeCommonEvent()

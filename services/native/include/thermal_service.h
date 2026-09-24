@@ -63,6 +63,7 @@ public:
     virtual void OnStart() override;
     virtual void OnStop() override;
     virtual void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+    virtual void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
     virtual int32_t Dump(int fd, const std::vector<std::u16string>& args) override;
     int32_t SubscribeThermalTempCallback(
         const std::vector<std::string>& typeList, const sptr<IThermalTempCallback>& callback) override;
@@ -198,6 +199,7 @@ private:
     static std::atomic_bool isBootCompleted_;
     bool isSimulation_ {false};
     bool isTempReport_ {true};
+    std::atomic_bool isHdiRemove_ { false };
     std::mutex mutex_;
     std::mutex interfaceMutex_;
     std::mutex sceneMutex_;
