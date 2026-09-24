@@ -152,7 +152,7 @@ void ThermalService::OnAddSystemAbility(int32_t systemAbilityId, const std::stri
         }
         csc->InitChargeState();
 #endif
-    } else if (systemAbilityId == DEVICE_SERVICE_MANAGER_SA_ID ) {
+    } else if (systemAbilityId == DEVICE_SERVICE_MANAGER_SA_ID) {
         if (isHdiRemove_.load()) {
             RegisterHdiStatusListener();
         }
