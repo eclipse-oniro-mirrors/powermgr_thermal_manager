@@ -155,6 +155,7 @@ void ThermalService::OnAddSystemAbility(int32_t systemAbilityId, const std::stri
     } else if (systemAbilityId == DEVICE_SERVICE_MANAGER_SA_ID) {
         if (isHdiRemove_.load()) {
             RegisterHdiStatusListener();
+            isHdiRemove_.store(false, std::memory_order_relaxed);
         }
     }
 }
@@ -163,7 +164,7 @@ void ThermalService::OnRemoveSystemAbility(int32_t systemAbilityId, const std::s
 {
     THERMAL_HILOGI(COMP_SVC, "Remove systemAbilityId=%{public}d, deviceId=%{private}s",
         systemAbilityId, deviceId.c_str());
-    if (systemAbilityId == DEVICE_SERVICE_MANAGER_SA_ID) {
+    if (systemAbilityId == DEVICE_SERVICE_MANAGER_SA_ID && !isHdiRemove_.load()) {
         hdiServiceMgr_ = nullptr;
         thermalInterface_ = nullptr;
         isHdiRemove_.store(true, std::memory_order_relaxed);
