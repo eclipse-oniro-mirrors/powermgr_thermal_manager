@@ -165,6 +165,7 @@ void ThermalService::OnRemoveSystemAbility(int32_t systemAbilityId, const std::s
     THERMAL_HILOGI(COMP_SVC, "Remove systemAbilityId=%{public}d, deviceId=%{private}s",
         systemAbilityId, deviceId.c_str());
     if (systemAbilityId == DEVICE_SERVICE_MANAGER_SA_ID && !isHdiRemove_.load()) {
+        std::lock_guard lock(interfaceMutex_);
         hdiServiceMgr_ = nullptr;
         thermalInterface_ = nullptr;
         isHdiRemove_.store(true, std::memory_order_relaxed);
