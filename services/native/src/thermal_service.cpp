@@ -171,7 +171,6 @@ void ThermalService::OnRemoveSystemAbility(int32_t systemAbilityId, const std::s
     }
 }
 
-
 #ifdef HAS_THERMAL_AIRPLANE_MANAGER_PART
 bool ThermalService::SubscribeCommonEvent()
 {
