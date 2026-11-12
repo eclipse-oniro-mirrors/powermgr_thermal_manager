@@ -19,7 +19,8 @@
       "SystemCapability.PowerManager.ThermalManager"
     ],
     "features": [
-      "thermal_manager_audio_framework_enable"
+      "thermal_manager_audio_framework_enable",
+      "thermal_manager_enable_thermal_level_correction"
     ],
     "adapted_system_type": [
       "standard"

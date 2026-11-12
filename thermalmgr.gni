@@ -15,6 +15,7 @@ import("//build/ohos.gni")
 
 declare_args() {
   thermal_manager_audio_framework_enable = false
+  thermal_manager_enable_thermal_level_correction = false
 }
 defines = []
 if (!defined(global_parts_info) ||
@@ -52,6 +53,10 @@ if (!defined(global_parts_info) ||
   has_thermal_config_policy_part = true
 } else {
   has_thermal_config_policy_part = false
+}
+
+if (thermal_manager_enable_thermal_level_correction) {
+  defines += [ "THERMAL_MANAGER_ENABLE_THERMAL_LEVEL_CORRECTION" ]
 }
 
 if (defined(global_parts_info) &&

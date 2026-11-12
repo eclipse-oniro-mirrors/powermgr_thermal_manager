@@ -117,7 +117,11 @@ int32_t ActionThermalLevel::GetActionValue()
 
 int32_t ActionThermalLevel::GetThermalLevel()
 {
+#ifdef THERMAL_MANAGER_ENABLE_THERMAL_LEVEL_CORRECTION
+    return lastValue_ == INT_MIN ? static_cast<int32_t>(ThermalLevel::COOL) : lastValue_;
+#else
     return lastValue_;
+#endif
 }
 
 void ActionThermalLevel::LevelRequest(int32_t level)
@@ -136,11 +140,11 @@ void ActionThermalLevel::SubscribeThermalLevelCallback(const sptr<IThermalLevelC
     THERMAL_RETURN_IF(callback == nullptr);
     if (isSync) {
         if (AddThermalLevelListeners(callback, true)) {
-            callback->OnThermalLevelChanged(static_cast<ThermalLevel>(lastValue_));
+            callback->OnThermalLevelChanged(static_cast<ThermalLevel>(GetThermalLevel()));
         }
     } else {
         if (AddThermalLevelListeners(callback, false)) {
-            callback->OnAsyncThermalLevelChanged(static_cast<ThermalLevel>(lastValue_));
+            callback->OnAsyncThermalLevelChanged(static_cast<ThermalLevel>(GetThermalLevel()));
         }
     }
 }
