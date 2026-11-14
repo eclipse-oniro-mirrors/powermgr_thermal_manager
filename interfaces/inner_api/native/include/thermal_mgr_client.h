@@ -60,6 +60,7 @@ private:
 
     ErrCode Connect();
     void ResetProxy(const wptr<IRemoteObject>& remote);
+    sptr<IThermalSrv> GetThermalSrv();
     void GetLevel(ThermalLevel& level);
     bool GetThermalSrvSensorInfo(const SensorType& type, ThermalSrvSensorInfo& sensorInfo);
     sptr<IThermalSrv> thermalSrv_ {nullptr};

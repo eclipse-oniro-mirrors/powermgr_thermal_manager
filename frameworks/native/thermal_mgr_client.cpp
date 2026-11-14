@@ -94,36 +94,50 @@ void ThermalMgrClient::ResetProxy(const wptr<IRemoteObject>& remote)
     }
 }
 
+sptr<IThermalSrv> ThermalMgrClient::GetThermalSrv()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    return thermalSrv_;
+}
+
 bool ThermalMgrClient::SubscribeThermalTempCallback(
     const std::vector<std::string>& typeList, const sptr<IThermalTempCallback>& callback)
 {
     THERMAL_RETURN_IF_WITH_RET((callback == nullptr) || (Connect() != ERR_OK), false);
+    sptr<IThermalSrv> thermalSrv = GetThermalSrv();
+    THERMAL_RETURN_IF_WITH_RET(thermalSrv == nullptr, false);
     THERMAL_HILOGD(COMP_FWK, "Enter");
-    thermalSrv_->SubscribeThermalTempCallback(typeList, callback);
+    thermalSrv->SubscribeThermalTempCallback(typeList, callback);
     return true;
 }
 
 bool ThermalMgrClient::UnSubscribeThermalTempCallback(const sptr<IThermalTempCallback>& callback)
 {
     THERMAL_RETURN_IF_WITH_RET((callback == nullptr) || (Connect() != ERR_OK), false);
+    sptr<IThermalSrv> thermalSrv = GetThermalSrv();
+    THERMAL_RETURN_IF_WITH_RET(thermalSrv == nullptr, false);
     THERMAL_HILOGD(COMP_FWK, "Enter");
-    thermalSrv_->UnSubscribeThermalTempCallback(callback);
+    thermalSrv->UnSubscribeThermalTempCallback(callback);
     return true;
 }
 
 bool ThermalMgrClient::SubscribeThermalLevelCallback(const sptr<IThermalLevelCallback>& callback, bool isSync)
 {
     THERMAL_RETURN_IF_WITH_RET((callback == nullptr) || (Connect() != ERR_OK), false);
+    sptr<IThermalSrv> thermalSrv = GetThermalSrv();
+    THERMAL_RETURN_IF_WITH_RET(thermalSrv == nullptr, false);
     THERMAL_HILOGD(COMP_FWK, "Enter");
-    thermalSrv_->SubscribeThermalLevelCallback(callback, isSync);
+    thermalSrv->SubscribeThermalLevelCallback(callback, isSync);
     return true;
 }
 
 bool ThermalMgrClient::UnSubscribeThermalLevelCallback(const sptr<IThermalLevelCallback>& callback)
 {
     THERMAL_RETURN_IF_WITH_RET((callback == nullptr) || (Connect() != ERR_OK), false);
+    sptr<IThermalSrv> thermalSrv = GetThermalSrv();
+    THERMAL_RETURN_IF_WITH_RET(thermalSrv == nullptr, false);
     THERMAL_HILOGD(COMP_FWK, "Enter");
-    thermalSrv_->UnSubscribeThermalLevelCallback(callback);
+    thermalSrv->UnSubscribeThermalLevelCallback(callback);
     return true;
 }
 
@@ -131,16 +145,20 @@ bool ThermalMgrClient::SubscribeThermalActionCallback(
     const std::vector<std::string>& actionList, const std::string& desc, const sptr<IThermalActionCallback>& callback)
 {
     THERMAL_RETURN_IF_WITH_RET((callback == nullptr) || (Connect() != ERR_OK), false);
+    sptr<IThermalSrv> thermalSrv = GetThermalSrv();
+    THERMAL_RETURN_IF_WITH_RET(thermalSrv == nullptr, false);
     THERMAL_HILOGD(COMP_FWK, "Enter");
-    thermalSrv_->SubscribeThermalActionCallback(actionList, desc, callback);
+    thermalSrv->SubscribeThermalActionCallback(actionList, desc, callback);
     return true;
 }
 
 bool ThermalMgrClient::UnSubscribeThermalActionCallback(const sptr<IThermalActionCallback>& callback)
 {
     THERMAL_RETURN_IF_WITH_RET((callback == nullptr) || (Connect() != ERR_OK), false);
+    sptr<IThermalSrv> thermalSrv = GetThermalSrv();
+    THERMAL_RETURN_IF_WITH_RET(thermalSrv == nullptr, false);
     THERMAL_HILOGD(COMP_FWK, "Enter");
-    thermalSrv_->UnSubscribeThermalActionCallback(callback);
+    thermalSrv->UnSubscribeThermalActionCallback(callback);
     return true;
 }
 
@@ -149,13 +167,11 @@ bool ThermalMgrClient::GetThermalSrvSensorInfo(const SensorType& type, ThermalSr
     if (Connect() != ERR_OK) {
         return false;
     }
+    sptr<IThermalSrv> thermalSrv = GetThermalSrv();
+    THERMAL_RETURN_IF_WITH_RET(thermalSrv == nullptr, false);
     THERMAL_HILOGD(COMP_FWK, "Enter");
-    if (thermalSrv_ == nullptr) {
-        THERMAL_HILOGI(COMP_FWK, "the thermal pointer is null");
-        return false;
-    }
     bool ret = false;
-    thermalSrv_->GetThermalSrvSensorInfo(static_cast<int32_t>(type), sensorInfo, ret);
+    thermalSrv->GetThermalSrvSensorInfo(static_cast<int32_t>(type), sensorInfo, ret);
     return ret;
 }
 
@@ -173,8 +189,10 @@ void ThermalMgrClient::GetLevel(ThermalLevel& level)
 {
     THERMAL_HILOGD(COMP_FWK, "Enter");
     THERMAL_RETURN_IF(Connect() != ERR_OK);
+    sptr<IThermalSrv> thermalSrv = GetThermalSrv();
+    THERMAL_RETURN_IF(thermalSrv == nullptr);
     int32_t intLevel = static_cast<int32_t>(level);
-    thermalSrv_->GetThermalLevel(intLevel);
+    thermalSrv->GetThermalLevel(intLevel);
     level = static_cast<ThermalLevel>(intLevel);
 }
 
@@ -182,7 +200,9 @@ bool ThermalMgrClient::SetScene(const std::string& scene)
 {
     THERMAL_HILOGD(COMP_FWK, "Enter");
     THERMAL_RETURN_IF_WITH_RET(Connect() != ERR_OK, false);
-    int ret = thermalSrv_->SetScene(scene);
+    sptr<IThermalSrv> thermalSrv = GetThermalSrv();
+    THERMAL_RETURN_IF_WITH_RET(thermalSrv == nullptr, false);
+    int ret = thermalSrv->SetScene(scene);
     return ret == ERR_OK;
 }
 
@@ -190,7 +210,9 @@ bool ThermalMgrClient::UpdateThermalState(const std::string& tag, const std::str
 {
     THERMAL_HILOGD(COMP_FWK, "Enter");
     THERMAL_RETURN_IF_WITH_RET(Connect() != ERR_OK, false);
-    int ret = thermalSrv_->UpdateThermalState(tag, val, isImmed);
+    sptr<IThermalSrv> thermalSrv = GetThermalSrv();
+    THERMAL_RETURN_IF_WITH_RET(thermalSrv == nullptr, false);
+    int ret = thermalSrv->UpdateThermalState(tag, val, isImmed);
     return ret == ERR_OK;
 }
 
@@ -198,7 +220,9 @@ bool ThermalMgrClient::UpdateThermalPolicy()
 {
     THERMAL_HILOGD(COMP_FWK, "Enter");
     THERMAL_RETURN_IF_WITH_RET(Connect() != ERR_OK, false);
-    int ret = thermalSrv_->GetThermalInfo();
+    sptr<IThermalSrv> thermalSrv = GetThermalSrv();
+    THERMAL_RETURN_IF_WITH_RET(thermalSrv == nullptr, false);
+    int ret = thermalSrv->GetThermalInfo();
     return ret == ERR_OK;
 }
 
@@ -215,13 +239,15 @@ std::string ThermalMgrClient::Dump(const std::vector<std::string>& args)
     const int PARAM_MAX_NUM = 10;
     std::string error = "can't connect service";
     THERMAL_RETURN_IF_WITH_RET(Connect() != ERR_OK, error);
+    sptr<IThermalSrv> thermalSrv = GetThermalSrv();
+    THERMAL_RETURN_IF_WITH_RET(thermalSrv == nullptr, error);
     THERMAL_HILOGD(COMP_FWK, "Enter");
     std::string dumpShell = "remote error";
     if (args.size() >= PARAM_MAX_NUM) {
         THERMAL_HILOGE(COMP_FWK, "params exceed limit");
         return dumpShell;
     }
-    thermalSrv_->ShellDump(args, args.size(), dumpShell);
+    thermalSrv->ShellDump(args, args.size(), dumpShell);
     return dumpShell;
 }
 } // namespace PowerMgr
