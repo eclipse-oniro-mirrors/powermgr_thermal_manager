@@ -117,8 +117,8 @@ int32_t ActionThermalLevel::GetActionValue()
 
 int32_t ActionThermalLevel::GetThermalLevel()
 {
-#ifdef THERMAL_MANAGER_ENABLE_THERMAL_LEVEL_CORRECTION
-    return lastValue_ == INT_MIN ? static_cast<int32_t>(ThermalLevel::COOL) : lastValue_;
+#ifdef THERMAL_MANAGER_ENABLE_THERMAL_LEVEL_FIX_COOL
+    return static_cast<int32_t>(ThermalLevel::COOL);
 #else
     return lastValue_;
 #endif
