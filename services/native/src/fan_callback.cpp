@@ -20,8 +20,10 @@
 namespace OHOS {
 namespace PowerMgr {
 FanCallback::FanEventCallback FanCallback::eventCb_ = nullptr;
+std::mutex FanCallback::eventMutex_;
 int32_t FanCallback::OnFanDataEvent(const HdfThermalCallbackInfo& event)
 {
+    std::lock_guard<std::mutex> lock(eventMutex_);
     if (eventCb_ == nullptr) {
         return HDF_FAILURE;
     }
@@ -30,6 +32,7 @@ int32_t FanCallback::OnFanDataEvent(const HdfThermalCallbackInfo& event)
 
 int32_t FanCallback::RegisterFanEvent(const FanEventCallback &eventCb)
 {
+    std::lock_guard<std::mutex> lock(eventMutex_);
     eventCb_ = eventCb;
     return HDF_SUCCESS;
 }

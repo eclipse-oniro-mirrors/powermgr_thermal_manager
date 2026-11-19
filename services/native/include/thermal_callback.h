@@ -17,6 +17,7 @@
 #define POWERMGR_THERMAL_MANAGER_THERMAL_CALLBACK_H
 
 #include <functional>
+#include <mutex>
 #include "v1_1/ithermal_callback.h"
 #include "v1_1/thermal_types.h"
 
@@ -31,6 +32,7 @@ public:
     int32_t OnThermalDataEvent(const HdfThermalCallbackInfo& event) override;
 private:
     static ThermalEventCallback eventCb_;
+    static std::mutex eventMutex_;
 };
 } // OHOS
 } // PowerMgr

@@ -17,6 +17,7 @@
 #define FAN_CALLBACK_H
 
 #include <functional>
+#include <mutex>
 #include "v1_1/ifan_callback.h"
 #include "v1_1/thermal_types.h"
 
@@ -31,6 +32,7 @@ public:
     int32_t OnFanDataEvent(const HdfThermalCallbackInfo& event) override;
 private:
     static FanEventCallback eventCb_;
+    static std::mutex eventMutex_;
 };
 } // OHOS
 } // PowerMgr
