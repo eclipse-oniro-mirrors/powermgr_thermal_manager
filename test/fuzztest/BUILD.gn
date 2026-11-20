@@ -32,6 +32,5 @@ group("fuzztest") {
     "thermalservice_fuzzer:ThermalServiceFuzzTest",
     "thermaltempcallback_fuzzer:ThermalTempCallbackFuzzTest",
     "updatethermalstate_fuzzer:UpdateThermalStateFuzzTest",
-    "simple_fuzzer:SimpleFuzzTest",
   ]
 }

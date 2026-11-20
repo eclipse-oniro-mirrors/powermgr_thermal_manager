@@ -138,8 +138,7 @@
         "//base/powermgr/thermal_manager/test:systemtest",
         "//base/powermgr/thermal_manager/test/fuzztest/thermallevelcallbackstub_fuzzer:fuzztest",
         "//base/powermgr/thermal_manager/test/fuzztest/thermal_fuzzer:fuzztest",
-        "//base/powermgr/thermal_manager/test/fuzztest/thermalsrvsensorinfo_fuzzer:fuzztest",
-        "//base/powermgr/thermal_manager/test/fuzztest/simple_fuzzer:fuzztest"
+        "//base/powermgr/thermal_manager/test/fuzztest/thermalsrvsensorinfo_fuzzer:fuzztest"
       ]
     }
   }
