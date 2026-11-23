@@ -27,6 +27,8 @@
                 <filteritem type="filepath" name="test/fuzztest/thermalmgrclient_fuzzer/project.xml" desc="Avoid OAT consistency check due to WordsTool conflict"/>
             </filefilter>
             <filefilter name="copyrightPolicyFilter" desc="Filters for copyright policies">
+                <filteritem type="filepath" name="test/fuzztest/thermal_fuzzer/corpus/level_subscription_async" desc="Raw fuzz corpus is input data"/>
+                <filteritem type="filepath" name="test/fuzztest/thermal_fuzzer/corpus/level_subscription_sync" desc="Raw fuzz corpus is input data"/>
                 <filteritem type="filename" name="project.xml" desc="Avoid OAT consistency check due to WordsTool conflict"/>
                 <filteritem type="filepath" name="test/fuzztest/thermalmgrclient_fuzzer/project.xml" desc="Avoid OAT consistency check due to WordsTool conflict"/>
             </filefilter>
