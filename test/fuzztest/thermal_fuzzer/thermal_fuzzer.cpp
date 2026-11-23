@@ -41,34 +41,6 @@ namespace {
 constexpr size_t MAX_STRING_LENGTH = 256;
 constexpr size_t MAX_VECTOR_SIZE = 16;
 constexpr int32_t REWIND_READ_DATA = 0;
-
-// Test callback implementations
-class ThermalFuzzerTempCallback : public ThermalTempCallbackStub {
-public:
-    bool OnThermalTempChanged(TempCallbackMap& tempCbMap) override
-    {
-        (void)tempCbMap;
-        return true;
-    }
-};
-
-class ThermalFuzzerLevelCallback : public ThermalLevelCallbackStub {
-public:
-    bool OnThermalLevelChanged(ThermalLevel level) override
-    {
-        (void)level;
-        return true;
-    }
-};
-
-class ThermalFuzzerActionCallback : public ThermalActionCallbackStub {
-public:
-    bool OnThermalActionChanged(ActionCallbackMap& actionCbMap) override
-    {
-        (void)actionCbMap;
-        return true;
-    }
-};
 } // namespace
 
 namespace OHOS {
@@ -114,8 +86,12 @@ void ThermalFuzzer::FuzzSubscribeThermalTempCallback(FuzzedDataProvider& provide
         return;
     }
     std::vector<std::string> typeList = GenerateStringVector(provider);
-    sptr<IThermalTempCallback> callback = new ThermalFuzzerTempCallback();
+    sptr<IThermalTempCallback> callback = sptr<ThermalFuzzerTempCallback>::MakeSptr();
+    if (callback == nullptr) {
+        return;
+    }
     service_->SubscribeThermalTempCallback(typeList, callback);
+    service_->UnSubscribeThermalTempCallback(callback);
 }
 
 void ThermalFuzzer::FuzzUnSubscribeThermalTempCallback(FuzzedDataProvider& provider)
@@ -124,7 +100,10 @@ void ThermalFuzzer::FuzzUnSubscribeThermalTempCallback(FuzzedDataProvider& provi
     if (service_ == nullptr) {
         return;
     }
-    sptr<IThermalTempCallback> callback = new ThermalFuzzerTempCallback();
+    sptr<IThermalTempCallback> callback = sptr<ThermalFuzzerTempCallback>::MakeSptr();
+    if (callback == nullptr) {
+        return;
+    }
     service_->UnSubscribeThermalTempCallback(callback);
 }
 
@@ -133,8 +112,12 @@ void ThermalFuzzer::FuzzSubscribeThermalLevelCallback(FuzzedDataProvider& provid
     if (service_ == nullptr) {
         return;
     }
-    sptr<IThermalLevelCallback> callback = new ThermalFuzzerLevelCallback();
-    service_->SubscribeThermalLevelCallback(callback);
+    sptr<IThermalLevelCallback> callback = sptr<ThermalFuzzerLevelCallback>::MakeSptr();
+    if (callback == nullptr) {
+        return;
+    }
+    service_->SubscribeThermalLevelCallback(callback, provider.ConsumeBool());
+    service_->UnSubscribeThermalLevelCallback(callback);
 }
 
 void ThermalFuzzer::FuzzUnSubscribeThermalLevelCallback(FuzzedDataProvider& provider)
@@ -143,7 +126,10 @@ void ThermalFuzzer::FuzzUnSubscribeThermalLevelCallback(FuzzedDataProvider& prov
     if (service_ == nullptr) {
         return;
     }
-    sptr<IThermalLevelCallback> callback = new ThermalFuzzerLevelCallback();
+    sptr<IThermalLevelCallback> callback = sptr<ThermalFuzzerLevelCallback>::MakeSptr();
+    if (callback == nullptr) {
+        return;
+    }
     service_->UnSubscribeThermalLevelCallback(callback);
 }
 
@@ -154,8 +140,12 @@ void ThermalFuzzer::FuzzSubscribeThermalActionCallback(FuzzedDataProvider& provi
     }
     std::vector<std::string> actionList = GenerateStringVector(provider);
     std::string desc = GenerateString(provider);
-    sptr<IThermalActionCallback> callback = new ThermalFuzzerActionCallback();
+    sptr<IThermalActionCallback> callback = sptr<ThermalFuzzerActionCallback>::MakeSptr();
+    if (callback == nullptr) {
+        return;
+    }
     service_->SubscribeThermalActionCallback(actionList, desc, callback);
+    service_->UnSubscribeThermalActionCallback(callback);
 }
 
 void ThermalFuzzer::FuzzUnSubscribeThermalActionCallback(FuzzedDataProvider& provider)
@@ -164,7 +154,10 @@ void ThermalFuzzer::FuzzUnSubscribeThermalActionCallback(FuzzedDataProvider& pro
     if (service_ == nullptr) {
         return;
     }
-    sptr<IThermalActionCallback> callback = new ThermalFuzzerActionCallback();
+    sptr<IThermalActionCallback> callback = sptr<ThermalFuzzerActionCallback>::MakeSptr();
+    if (callback == nullptr) {
+        return;
+    }
     service_->UnSubscribeThermalActionCallback(callback);
 }
 
@@ -173,7 +166,7 @@ void ThermalFuzzer::FuzzGetThermalSrvSensorInfo(FuzzedDataProvider& provider)
     if (service_ == nullptr) {
         return;
     }
-    int32_t type = provider.ConsumeIntegral<int32_t>();
+    const auto type = static_cast<int32_t>(provider.ConsumeIntegral<uint8_t>());
     ThermalSrvSensorInfo sensorInfo;
     bool sensorInfoRet = false;
     service_->GetThermalSrvSensorInfo(type, sensorInfo, sensorInfoRet);
@@ -224,7 +217,7 @@ void ThermalFuzzer::FuzzShellDump(FuzzedDataProvider& provider)
         return;
     }
     std::vector<std::string> args = GenerateStringVector(provider);
-    uint32_t argc = provider.ConsumeIntegral<uint32_t>();
+    const auto argc = static_cast<uint32_t>(args.size());
     std::string result;
     service_->ShellDump(args, argc, result);
 }
@@ -329,10 +322,6 @@ void ThermalFuzzer::FuzzServiceStub(uint32_t code, const uint8_t* data, size_t s
 } // namespace PowerMgr
 } // namespace OHOS
 
-namespace {
-OHOS::PowerMgr::ThermalFuzzer g_thermalFuzzer;
-} // namespace
-
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
@@ -340,10 +329,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
+    static OHOS::PowerMgr::ThermalFuzzer fuzzer;
     FuzzedDataProvider provider(data, size);
-    
+
     // Method 1: Direct API fuzzing with random IPC code selection
-    g_thermalFuzzer.FuzzThermalService(provider);
+    fuzzer.FuzzThermalService(provider);
 
     // Method 2: IPC stub fuzzing with raw data
     if (provider.remaining_bytes() > 0) {
@@ -351,7 +341,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
             0, static_cast<uint32_t>(OHOS::PowerMgr::ThermalFuzzIpcCode::MAX_CODE) - 1);
         std::vector<uint8_t> remainingData = provider.ConsumeRemainingBytes<uint8_t>();
         if (!remainingData.empty()) {
-            g_thermalFuzzer.FuzzServiceStub(code, remainingData.data(), remainingData.size());
+            fuzzer.FuzzServiceStub(code, remainingData.data(), remainingData.size());
         }
     }
 
